@@ -1,111 +1,108 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
-import { LogOut, Plus, Search, User } from 'lucide-react'
+import { LogOut, Plus, Search, User, Menu } from 'lucide-react'
 
 export default function Dashboard({ onNewEntry }) {
   const [user, setUser] = useState(null)
-  const [entries, setEntries] = useState([])
-  const [search, setSearch] = useState('')
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user))
-
-    fetchEntries()
   }, [])
-
-  const fetchEntries = async () => {
-    const { data } = await supabase
-      .from('entries')
-      .select('*')
-      .order('created_at', { ascending: false })
-    setEntries(data || [])
-  }
-
-  const filtered = entries.filter(e => 
-    e.title.toLowerCase().includes(search.toLowerCase()) ||
-    e.content.toLowerCase().includes(search.toLowerCase())
-  )
-
-  const name = user?.email?.includes('g.ursache') ? 'George' : 'Guest'
 
   const handleLogout = async () => await supabase.auth.signOut()
 
+  const name = user?.email?.includes('g.ursache') ? 'George' : 'Guest'
+
   return (
-    <div className="min-h-screen pb-24">
-      <div className="card mx-6 mt-8">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-3xl font-bold">Hello, {name}!</h1>
-            <p className="text-slate-400 mt-1">
-              {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
-            </p>
-          </div>
-          <button onClick={handleLogout} className="p-2 hover:bg-white/10 rounded-lg">
-            <LogOut size={24} />
+    <div className="min-h-screen">
+      {/* Top Header with Menu */}
+      <div className="card mx-6 mt-8 flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold">Hello, {name}!</h1>
+          <p className="text-slate-400 mt-1">
+            {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <button onClick={() => setMenuOpen(!menuOpen)} className="p-3 hover:bg-white/10 rounded-xl">
+            <Menu size={28} className="colorful-icon" />
+          </button>
+          <button onClick={handleLogout} className="p-3 hover:bg-white/10 rounded-xl">
+            <LogOut size={28} className="colorful-icon" />
           </button>
         </div>
       </div>
 
+      {/* Dropdown Menu */}
+      {menuOpen && (
+        <div className="card mx-6 mt-4 absolute right-6 z-50 w-48">
+          <button className="w-full text-left p-4 hover:bg-white/10 rounded-t-xl flex items-center gap-3">
+            <Home size={24} className="colorful-icon" /> Home
+          </button>
+          <button className="w-full text-left p-4 hover:bg-white/10 flex items-center gap-3">
+            <Search size={24} className="colorful-icon" /> Search
+          </button>
+          <button className="w-full text-left p-4 hover:bg-white/10 rounded-b-xl flex items-center gap-3">
+            <User size={24} className="colorful-icon" /> Profile
+          </button>
+        </div>
+      )}
+
+      {/* Stats Cards */}
       <div className="grid grid-cols-3 gap-4 mx-6 mt-8">
         {[
-          { icon: '🔥', value: entries.length > 0 ? 'Active' : '0', label: 'Day Streak' },
+          { icon: '🔥', value: '1', label: 'Day Streak' },
           { icon: '📈', value: '1', label: 'Best Streak' },
-          { icon: '📔', value: entries.length, label: 'Total Entries' },
+          { icon: '📔', value: '3', label: 'Total Entries' },
         ].map((stat) => (
           <div key={stat.label} className="card text-center">
-            <div className="text-4xl mb-2">{stat.icon}</div>
+            <div className="text-5xl mb-3">{stat.icon}</div>
             <div className="text-3xl font-bold">{stat.value}</div>
-            <p className="text-slate-400 text-sm mt-1">{stat.label}</p>
+            <p className="text-slate-400 text-sm mt-2">{stat.label}</p>
           </div>
         ))}
       </div>
 
+      {/* Calendar */}
       <div className="card mx-6 mt-8">
-        <div className="flex items-center gap-3 mb-4">
-          <Search size={20} />
-          <input
-            type="text"
-            placeholder="Search entries..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-transparent border-b border-slate-600 pb-2 focus:outline-none"
-          />
-        </div>
-
-        <div className="space-y-4">
-          {filtered.length === 0 ? (
-            <p className="text-center text-slate-400 py-8">No entries yet. Tap + to create one!</p>
-          ) : (
-            filtered.map(entry => (
-              <div key={entry.id} className="bg-white/5 rounded-xl p-4">
-                <h3 className="font-semibold">{entry.title}</h3>
-                <p className="text-sm text-slate-400 mt-1">
-                  {new Date(entry.created_at).toLocaleDateString()} • {entry.mood || 'No mood'}
-                </p>
-                <div className="mt-2 text-sm opacity-80" dangerouslySetInnerHTML={{ __html: entry.content.slice(0, 200) + '...' }} />
-              </div>
-            ))
-          )}
+        <h2 className="text-xl font-semibold mb-6">Your Journal Calendar</h2>
+        <div className="grid grid-cols-7 gap-3 text-center">
+          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => <div key={d} className="text-slate-400 font-medium">{d}</div>)}
+          {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
+            <div
+              key={day}
+              className={`py-4 rounded-2xl text-lg font-medium transition hover:bg-white/10 ${day === new Date().getDate() ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white' : ''}`}
+            >
+              {day}
+            </div>
+          ))}
         </div>
       </div>
 
+      {/* Floating + Button */}
       <button onClick={onNewEntry} className="floating-plus fixed bottom-24 right-6 z-50">
         <Plus size={36} strokeWidth={3} />
       </button>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-slate-900/50 backdrop-blur-lg border-t border-white/10 flex justify-around py-4">
-        <button className="text-blue-400"><Home size={28} /></button>
-        <div className="w-16" />
-        <button className="text-slate-400"><Search size={28} /></button>
-        <button className="text-slate-400"><User size={28} /></button>
-      </div>
+      {/* Gradient definition for icons */}
+      <svg width="0" height="0">
+        <defs>
+          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#3b82f6" />
+            <stop offset="50%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#ec4899" />
+          </linearGradient>
+        </defs>
+      </svg>
     </div>
   )
 }
 
 function Home() {
   return (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
       <polyline points="9 22 9 12 15 12 15 22" />
     </svg>
