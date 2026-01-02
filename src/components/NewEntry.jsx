@@ -14,7 +14,7 @@ export default function NewEntry({ onBack }) {
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Placeholder.configure({ placeholder: 'Write your thoughts here...' }),
+      Placeholder.configure({ placeholder: 'Write your thoughts here..' }),
     ],
     content: '',
   })

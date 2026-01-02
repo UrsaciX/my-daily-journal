@@ -92,7 +92,7 @@ button.accent:hover {
   transform: scale(1.2) rotate(10deg);
 }
 
-/* Photo grid - not too big */
+/* Photo grid - not too big togo */
 .photo-preview {
   height: 120px;
   object-fit: cover;
