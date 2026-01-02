@@ -21,7 +21,19 @@ export default function NewEntry({ onBack }) {
 
   const moods = ['😄', '😊', '😐', '😔', '😠']
 
-  const handleVoice = () => alert('Voice-to-text coming soon!')
+  const handleVoice = () => {
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
+      const recognition = new SpeechRecognition()
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript
+        editor?.chain().focus().insertContent(transcript + ' ').run()
+      }
+      recognition.start()
+    } else {
+      alert('Voice-to-text not supported in this browser')
+    }
+  }
 
   const handlePhoto = (e) => {
     const files = Array.from(e.target.files)
@@ -42,15 +54,16 @@ export default function NewEntry({ onBack }) {
       user_id: session?.user?.id || null,
     })
 
-    if (error) alert('Error: ' + error.message)
-    else {
+    if (error) {
+      alert('Error: ' + error.message)
+    } else {
       alert('Entry saved successfully!')
       onBack()
     }
   }
 
   return (
-    <div className="min-h-screen pb-24">
+    <div className="min-h-screen">
       <div className="card mx-6 mt-8 flex items-center gap-4">
         <button onClick={onBack}><ArrowLeft size={28} /></button>
         <div>
@@ -62,7 +75,7 @@ export default function NewEntry({ onBack }) {
       </div>
 
       <div className="mx-6 mt-8 space-y-6">
-        <div className="glass card p-5">
+        <div className="card p-5 bg-yellow-900/30">
           <p className="text-sm opacity-80">Today's Prompt</p>
           <p className="text-lg font-semibold mt-2">What would make tomorrow even better?</p>
         </div>
@@ -87,7 +100,7 @@ export default function NewEntry({ onBack }) {
         {photos.length > 0 && (
           <div className="grid grid-cols-3 gap-4">
             {photos.map((src, i) => (
-              <img key={i} src={src} className="rounded-2xl object-cover h-32 w-full" />
+              <img key={i} src={src} alt="preview" className="rounded-2xl object-cover h-32 w-full" />
             ))}
           </div>
         )}
@@ -106,7 +119,13 @@ export default function NewEntry({ onBack }) {
           </div>
         </div>
 
-        <button className="card w-full flex items-center justify-center gap-4 py-5">
+        <button
+          onClick={() => navigator.geolocation.getCurrentPosition(
+            pos => setLocation(`Lat: ${pos.coords.latitude.toFixed(4)}, Lon: ${pos.coords.longitude.toFixed(4)}`),
+            () => alert('Location denied')
+          )}
+          className="card w-full flex items-center justify-center gap-4 py-5"
+        >
           <MapPin size={24} />
           <span>{location || 'Add Location'}</span>
         </button>

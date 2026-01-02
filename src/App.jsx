@@ -9,8 +9,6 @@ function App() {
   const [page, setPage] = useState('dashboard')
 
   useEffect(() => {
-    document.documentElement.classList.add('dark') // force dark mode
-
     supabase.auth.getSession().then(({ data: { session } }) => setSession(session))
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {

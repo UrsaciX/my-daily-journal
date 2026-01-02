@@ -4,18 +4,34 @@ import { LogOut, Plus, Search, User } from 'lucide-react'
 
 export default function Dashboard({ onNewEntry }) {
   const [user, setUser] = useState(null)
+  const [entries, setEntries] = useState([])
+  const [search, setSearch] = useState('')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user))
+
+    fetchEntries()
   }, [])
 
-  const handleLogout = async () => await supabase.auth.signOut()
+  const fetchEntries = async () => {
+    const { data } = await supabase
+      .from('entries')
+      .select('*')
+      .order('created_at', { ascending: false })
+    setEntries(data || [])
+  }
+
+  const filtered = entries.filter(e => 
+    e.title.toLowerCase().includes(search.toLowerCase()) ||
+    e.content.toLowerCase().includes(search.toLowerCase())
+  )
 
   const name = user?.email?.includes('g.ursache') ? 'George' : 'Guest'
 
+  const handleLogout = async () => await supabase.auth.signOut()
+
   return (
     <div className="min-h-screen pb-24">
-      {/* Header */}
       <div className="card mx-6 mt-8">
         <div className="flex justify-between items-start">
           <div>
@@ -30,12 +46,11 @@ export default function Dashboard({ onNewEntry }) {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mx-6 mt-8">
         {[
-          { icon: '🔥', value: '1', label: 'Day Streak' },
+          { icon: '🔥', value: entries.length > 0 ? 'Active' : '0', label: 'Day Streak' },
           { icon: '📈', value: '1', label: 'Best Streak' },
-          { icon: '📔', value: '3', label: 'Total Entries' },
+          { icon: '📔', value: entries.length, label: 'Total Entries' },
         ].map((stat) => (
           <div key={stat.label} className="card text-center">
             <div className="text-4xl mb-2">{stat.icon}</div>
@@ -45,42 +60,44 @@ export default function Dashboard({ onNewEntry }) {
         ))}
       </div>
 
-      {/* Calendar */}
       <div className="card mx-6 mt-8">
-        <h2 className="text-xl font-semibold mb-4">Your Journal Calendar</h2>
-        <div className="grid grid-cols-7 gap-3 text-center">
-          {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => <div key={d} className="text-slate-400">{d}</div>)}
-          {Array.from({ length: 31 }, (_, i) => i + 1).map(day => (
-            <div
-              key={day}
-              className={`py-3 rounded-xl ${day === 2 ? 'bg-blue-600 text-white font-bold' : 'hover:bg-white/10'}`}
-            >
-              {day}
-            </div>
-          ))}
+        <div className="flex items-center gap-3 mb-4">
+          <Search size={20} />
+          <input
+            type="text"
+            placeholder="Search entries..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 bg-transparent border-b border-slate-600 pb-2 focus:outline-none"
+          />
+        </div>
+
+        <div className="space-y-4">
+          {filtered.length === 0 ? (
+            <p className="text-center text-slate-400 py-8">No entries yet. Tap + to create one!</p>
+          ) : (
+            filtered.map(entry => (
+              <div key={entry.id} className="bg-white/5 rounded-xl p-4">
+                <h3 className="font-semibold">{entry.title}</h3>
+                <p className="text-sm text-slate-400 mt-1">
+                  {new Date(entry.created_at).toLocaleDateString()} • {entry.mood || 'No mood'}
+                </p>
+                <div className="mt-2 text-sm opacity-80" dangerouslySetInnerHTML={{ __html: entry.content.slice(0, 200) + '...' }} />
+              </div>
+            ))
+          )}
         </div>
       </div>
 
-      {/* Floating + Button */}
-      <button
-        onClick={onNewEntry}
-        className="floating-plus fixed bottom-24 right-6 z-50"
-      >
+      <button onClick={onNewEntry} className="floating-plus fixed bottom-24 right-6 z-50">
         <Plus size={36} strokeWidth={3} />
       </button>
 
-      {/* Bottom Nav */}
       <div className="fixed bottom-0 left-0 right-0 bg-slate-900/50 backdrop-blur-lg border-t border-white/10 flex justify-around py-4">
-        <button className="text-blue-400">
-          <Home size={28} />
-        </button>
-        <div className="w-16" /> {/* spacer for + button */}
-        <button className="text-slate-400">
-          <Search size={28} />
-        </button>
-        <button className="text-slate-400">
-          <User size={28} />
-        </button>
+        <button className="text-blue-400"><Home size={28} /></button>
+        <div className="w-16" />
+        <button className="text-slate-400"><Search size={28} /></button>
+        <button className="text-slate-400"><User size={28} /></button>
       </div>
     </div>
   )
