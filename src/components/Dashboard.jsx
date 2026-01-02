@@ -81,7 +81,7 @@ export default function Dashboard({ onNewEntry }) {
         </div>
       </div>
 
-      {/* Floating + Button1 */}
+      {/* Floating + Button */}
       <button onClick={onNewEntry} className="floating-plus fixed bottom-24 right-6 z-50">
         <Plus size={36} strokeWidth={3} />
       </button>
