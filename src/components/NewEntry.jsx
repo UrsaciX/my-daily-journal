@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
-import { Camera, MapPin, Mic, ArrowLeft } from 'lucide-react'
+import { Camera, MapPin, ArrowLeft } from 'lucide-react'
 import { supabase } from '../supabaseClient'
 
 export default function NewEntry({ onBack }) {
@@ -54,9 +54,8 @@ export default function NewEntry({ onBack }) {
       user_id: session?.user?.id || null,
     })
 
-    if (error) {
-      alert('Error: ' + error.message)
-    } else {
+    if (error) alert('Error: ' + error.message)
+    else {
       alert('Entry saved successfully!')
       onBack()
     }
@@ -75,9 +74,9 @@ export default function NewEntry({ onBack }) {
       </div>
 
       <div className="mx-6 mt-8 space-y-6">
-        <div className="card p-5 bg-yellow-900/30">
+        <div className="glass card p-5 border border-white/10">
           <p className="text-sm opacity-80">Today's Prompt</p>
-          <p className="text-lg font-semibold mt-2">What would make tomorrow even better?</p>
+          <p className="text-xl font-semibold mt-2">What would make tomorrow even better?</p>
         </div>
 
         <input
@@ -85,14 +84,19 @@ export default function NewEntry({ onBack }) {
           placeholder="Title (optional)"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full px-5 py-4 rounded-2xl bg-slate-800/50 border border-slate-600"
+          className="w-full px-6 py-4 rounded-2xl bg-slate-800/70 border border-slate-600 text-lg"
         />
 
         <div className="card">
-          <EditorContent editor={editor} className="prose prose-invert max-w-none p-5 min-h-64" />
+          <EditorContent editor={editor} className="prose prose-invert max-w-none p-6 min-h-80" />
           <div className="border-t border-slate-700 p-4 flex justify-end">
-            <button onClick={handleVoice} className="p-3 hover:bg-slate-700 rounded-xl">
-              <Mic size={24} />
+            <button onClick={handleVoice} className="mic-button">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                <line x1="12" y1="19" x2="12" y2="23" />
+                <line x1="8" y1="23" x2="16" y2="23" />
+              </svg>
             </button>
           </div>
         </div>
@@ -100,20 +104,20 @@ export default function NewEntry({ onBack }) {
         {photos.length > 0 && (
           <div className="grid grid-cols-3 gap-4">
             {photos.map((src, i) => (
-              <img key={i} src={src} alt="preview" className="rounded-2xl object-cover h-32 w-full" />
+              <img key={i} src={src} alt="preview" className="photo-preview" />
             ))}
           </div>
         )}
 
         <div className="card text-center">
-          <p className="mb-4 font-medium">Photos & Videos</p>
+          <p className="mb-6 font-medium text-lg">Photos & Videos</p>
           <div className="flex justify-center gap-12">
             <label className="cursor-pointer">
-              <Camera size={40} />
+              <Camera size={48} />
               <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePhoto} />
             </label>
             <label className="cursor-pointer">
-              <div className="bg-slate-700 border-2 border-dashed rounded-2xl w-16 h-16" />
+              <div className="bg-slate-700 border-2 border-dashed rounded-2xl w-20 h-20" />
               <input type="file" accept="image/*,video/*" multiple className="hidden" onChange={handlePhoto} />
             </label>
           </div>
@@ -124,20 +128,20 @@ export default function NewEntry({ onBack }) {
             pos => setLocation(`Lat: ${pos.coords.latitude.toFixed(4)}, Lon: ${pos.coords.longitude.toFixed(4)}`),
             () => alert('Location denied')
           )}
-          className="card w-full flex items-center justify-center gap-4 py-5"
+          className="card w-full flex items-center justify-center gap-4 py-6 text-lg"
         >
-          <MapPin size={24} />
+          <MapPin size={28} />
           <span>{location || 'Add Location'}</span>
         </button>
 
         <div className="card text-center">
-          <p className="mb-6 font-medium text-lg">How are you feeling?</p>
+          <p className="mb-8 font-medium text-xl">How are you feeling?</p>
           <div className="flex justify-center gap-8">
             {moods.map(emoji => (
               <button
                 key={emoji}
                 onClick={() => setMood(emoji)}
-                className={`text-6xl p-5 rounded-full transition ${mood === emoji ? 'bg-blue-600/50 scale-110' : 'hover:bg-slate-700'}`}
+                className="mood-emoji"
               >
                 {emoji}
               </button>
@@ -145,7 +149,7 @@ export default function NewEntry({ onBack }) {
           </div>
         </div>
 
-        <button onClick={handleSave} className="accent w-full py-5 text-xl">
+        <button onClick={handleSave} className="accent w-full py-6 text-2xl">
           Save Entry
         </button>
       </div>

@@ -11,40 +11,91 @@ body {
 }
 
 .card {
-  background: rgba(30, 41, 59, 0.6);
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 1.75rem;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  padding: 1.75rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-radius: 1.5rem;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  padding: 1.5rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-input, .editor {
-  background: rgba(15, 23, 42, 0.6);
+input {
+  background: rgba(15, 23, 42, 0.8);
   border: 1px solid rgba(148, 163, 184, 0.3);
-  border-radius: 1rem;
+  border-radius: 1.25rem;
   color: #e2e8f0;
-  padding: 1rem;
+  padding: 1.25rem;
 }
 
 button.accent {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   color: white;
-  border-radius: 1rem;
-  padding: 1rem 2rem;
+  border-radius: 1.5rem;
+  padding: 1.25rem 2.5rem;
   font-weight: 600;
-  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+  transition: all 0.2s ease;
+}
+
+button.accent:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.6);
 }
 
 .floating-plus {
-  background: #3b82f6;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   color: white;
-  width: 64px;
-  height: 64px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.6);
+  transition: all 0.2s ease;
+}
+
+.floating-plus:hover {
+  transform: scale(1.1);
+}
+
+/* Colorful microphone */
+.mic-button {
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  padding: 1rem;
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+}
+
+/* Mood emojis - no white square */
+.mood-emoji {
+  font-size: 3.5rem;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.mood-emoji:hover {
+  transform: scale(1.2) rotate(10deg);
+}
+
+/* Photo grid - not too big */
+.photo-preview {
+  height: 120px;
+  object-fit: cover;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
